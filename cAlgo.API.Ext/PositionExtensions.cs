@@ -23,19 +23,19 @@ public static class PositionExtensions
     /// <summary>
     /// 複数のポジションの加重平均 price を求める。
     /// </summary>
-    /// <param name="rawPositions"></param>
+    /// <param name="positions"></param>
     /// <returns></returns>
-    public static double WeightedAveragePrice(this IEnumerable<Position> rawPositions)
+    public static double WeightedAveragePrice(this IEnumerable<Position> positions)
     {
-        var positions = rawPositions.ToArray();
-        var weightedPriceSum =
-            positions.Sum(position => position.EntryPrice * position.VolumeInUnits);
+        var positionsArray = positions.ToArray();
+        var sumOfWeightedPrice =
+            positionsArray.Sum(position => position.EntryPrice * position.VolumeInUnits);
 
-        var volumeSum =
-            positions.Sum(position => position.VolumeInUnits);
+        var sumOfVolume =
+            positionsArray.Sum(position => position.VolumeInUnits);
 
         return Math.Round(
-            value: weightedPriceSum / volumeSum,
+            value: sumOfWeightedPrice / sumOfVolume,
             digits: 5,
             mode: MidpointRounding.AwayFromZero);
     }
