@@ -4,7 +4,7 @@ namespace cAlgo.API.Ext;
 
 public static class SymbolExtensions
 {
-    public static double GetPip(this Symbol symbol)
+    private static double GetPip(this Symbol symbol)
     {
         return symbol.TickSize / symbol.PipSize * Math.Pow(10, symbol.Digits);
     }
