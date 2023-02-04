@@ -2,19 +2,19 @@
 
 namespace cAlgo.API.Ext.Chart;
 
-public static class SetDefault
+public static class DefaultSettingExtensions
 {
     /// <summary>
     /// HorizontalLine のデフォルト設定
     /// </summary>
     /// <param name="horizontalLine"></param>
     /// <param name="timeFrame"></param>
-    public static void HorizontalLine(ChartHorizontalLine horizontalLine, TimeFrame timeFrame)
+    public static void SetDefault(this ChartHorizontalLine horizontalLine, TimeFrame timeFrame)
     {
         horizontalLine.Comment ??= timeFrame.ToString();
 
         // 手動で追加したラインのみを対象とする。
-        if (!Conditions.StartsWithDefaultName(horizontalLine))
+        if (horizontalLine.IsAddedManually())
         {
             return;
         }
@@ -37,7 +37,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="verticalLine"></param>
     /// <param name="timeFrame"></param>
-    public static void VerticalLine(ChartVerticalLine verticalLine, TimeFrame timeFrame)
+    public static void SetDefault(this ChartVerticalLine verticalLine, TimeFrame timeFrame)
     {
         verticalLine.Comment ??= timeFrame.ToString();
     }
@@ -48,7 +48,7 @@ public static class SetDefault
     /// <param name="trendLine"></param>
     /// <param name="timeFrame"></param>
     /// <param name="symbol"></param>
-    public static void TrendLine(ChartTrendLine trendLine, TimeFrame timeFrame, Symbol symbol)
+    public static void SetDefault(this ChartTrendLine trendLine, TimeFrame timeFrame, Symbol symbol)
     {
         trendLine.Comment ??= timeFrame.ToString();
 
@@ -56,7 +56,7 @@ public static class SetDefault
         trendLine.LineStyle = LineStyle.DotsRare;
 
         // 水平化
-        if (Conditions.IsHorizontalPartialLine(trendLine, symbol))
+        if (trendLine.IsHorizontalPartialLine(symbol))
         {
             trendLine.Y2 = trendLine.Y1;
         }
@@ -67,7 +67,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="rectangle"></param>
     /// <param name="timeFrame"></param>
-    public static void Rectangle(ChartRectangle rectangle, TimeFrame timeFrame)
+    public static void SetDefault(this ChartRectangle rectangle, TimeFrame timeFrame)
     {
         rectangle.Comment ??= timeFrame.ToString();
 
@@ -93,7 +93,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="ellipse"></param>
     /// <param name="timeFrame"></param>
-    public static void Ellipse(ChartEllipse ellipse, TimeFrame timeFrame)
+    public static void SetDefault(this ChartEllipse ellipse, TimeFrame timeFrame)
     {
         ellipse.Comment ??= timeFrame.ToString();
 
@@ -119,7 +119,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="ellipse"></param>
     /// <param name="hLines"></param>
-    public static void AdjustEllipse(ChartEllipse ellipse, ChartHorizontalLine[] hLines)
+    public static void AdjustEllipseSize(this ChartEllipse ellipse, ChartHorizontalLine[] hLines)
     {
         // TODO : 複数ある場合の処理
         if (!hLines.Any() || hLines.Count() > 1)
@@ -140,7 +140,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="triangle"></param>
     /// <param name="timeFrame"></param>
-    public static void Triangle(ChartTriangle triangle, TimeFrame timeFrame)
+    public static void SetDefault(this ChartTriangle triangle, TimeFrame timeFrame)
     {
         triangle.Comment ??= timeFrame.ToString();
 
@@ -157,7 +157,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="text"></param>
     /// <param name="timeFrame"></param>
-    public static void Text(ChartText text, TimeFrame timeFrame)
+    public static void SetDefault(this ChartText text, TimeFrame timeFrame)
     {
         text.Comment ??= timeFrame.ToString();
     }
@@ -167,7 +167,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="staticText"></param>
     /// <param name="timeFrame"></param>
-    public static void StaticText(ChartStaticText staticText, TimeFrame timeFrame)
+    public static void SetDefault(this ChartStaticText staticText, TimeFrame timeFrame)
     {
         staticText.Comment ??= timeFrame.ToString();
     }
@@ -177,7 +177,7 @@ public static class SetDefault
     /// </summary>
     /// <param name="icon"></param>
     /// <param name="timeFrame"></param>
-    public static void Icon(ChartIcon icon, TimeFrame timeFrame)
+    public static void SetDefault(this ChartIcon icon, TimeFrame timeFrame)
     {
         icon.Comment ??= timeFrame.ToString();
     }

@@ -2,14 +2,14 @@
 
 namespace cAlgo.API.Ext.Chart;
 
-public static class Conditions
+public static class ConditionExtensions
 {
     /// <summary>
     /// 手動で追加した HorizontalLine か判定する。
     /// </summary>
     /// <param name="horizontalLine"></param>
     /// <returns></returns>
-    public static bool StartsWithDefaultName(ChartHorizontalLine horizontalLine)
+    public static bool IsAddedManually(this ChartHorizontalLine horizontalLine)
     {
         const string defaultName = "Horizontal Line";
         return horizontalLine.Name.StartsWith(defaultName);
@@ -22,7 +22,7 @@ public static class Conditions
     /// <param name="trendLine"></param>
     /// <param name="symbol"></param>
     /// <returns></returns>
-    public static bool IsHorizontalPartialLine(ChartTrendLine trendLine, Symbol symbol)
+    public static bool IsHorizontalPartialLine(this ChartTrendLine trendLine, Symbol symbol)
     {
         var distance = Math.Round(
             value: Math.Abs(trendLine.Y1 - trendLine.Y2),
@@ -51,7 +51,7 @@ public static class Conditions
     /// </summary>
     /// <param name="verticalLine"></param>
     /// <returns></returns>
-    public static bool IsEconomicEventsLine(ChartVerticalLine verticalLine)
+    public static bool IsEconomicEventsLine(this ChartVerticalLine verticalLine)
     {
         return verticalLine.Name.StartsWith("HIGH") || verticalLine.Name.StartsWith("MEDIUM");
     }

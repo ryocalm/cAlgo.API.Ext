@@ -2,13 +2,13 @@
 
 namespace cAlgo.API.Ext.Chart;
 
-public static class SetColor
+public static class ColorSettingExtensions
 {
     /// <summary>
     /// Chart の基本的な配色を設定する。
     /// </summary>
     /// <param name="chart"></param>
-    public static void ChartColorSettings(API.Chart chart)
+    public static void SetColor(this API.Chart chart)
     {
         var cs = chart.ColorSettings;
         cs.BackgroundColor = Colors.Background;
@@ -44,14 +44,8 @@ public static class SetColor
     /// </summary>
     /// <param name="horizontalLine"></param>
     /// <param name="ask"></param>
-    public static void HorizontalLine(ChartHorizontalLine horizontalLine, double ask)
+    public static void SetColor(this ChartHorizontalLine horizontalLine, double ask)
     {
-        // 手動で追加したラインのみを対象とする。
-        if (!Conditions.StartsWithDefaultName(horizontalLine))
-        {
-            return;
-        }
-
         horizontalLine.Color = horizontalLine.Y >= ask ? Colors.ResistanceLine : Colors.SupportLine;
     }
 
@@ -59,7 +53,7 @@ public static class SetColor
     /// VerticalLine の Color を設定する
     /// </summary>
     /// <param name="verticalLine"></param>
-    public static void VerticalLine(ChartVerticalLine verticalLine)
+    public static void SetColor(this ChartVerticalLine verticalLine)
     {
     }
 
@@ -69,9 +63,9 @@ public static class SetColor
     /// <param name="trendLine"></param>
     /// <param name="symbol"></param>
     /// <param name="ask"></param>
-    public static void TrendLine(ChartTrendLine trendLine, Symbol symbol, double ask)
+    public static void SetColor(this ChartTrendLine trendLine, Symbol symbol, double ask)
     {
-        if (Conditions.IsHorizontalPartialLine(trendLine, symbol))
+        if (ConditionExtensions.IsHorizontalPartialLine(trendLine, symbol))
         {
             trendLine.Color = trendLine.Y1 >= ask ? Colors.ResistanceLine : Colors.SupportLine;
         }
@@ -89,7 +83,7 @@ public static class SetColor
     /// <param name="bars">Rectangle の上下にある Bar</param>
     /// <param name="ask">Ask</param>
     /// <param name="bid">Bid</param>
-    public static void Rectangle(ChartRectangle rectangle, Bar[] bars, double ask, double bid)
+    public static void SetColor(this ChartRectangle rectangle, Bar[] bars, double ask, double bid)
     {
         // 安値マーカー
         // 各 Bar の Low が上辺（Y1）より上にある
@@ -110,7 +104,10 @@ public static class SetColor
         // 以下、マーカーではない場合
 
         // 過去のものは Color を変更しない。
-        if (rectangle.Time2 < DateTime.UtcNow) return;
+        if (rectangle.Time2 < DateTime.UtcNow)
+        {
+            return;
+        }
 
         if (rectangle.Y1 <= bid)
         {
@@ -127,7 +124,7 @@ public static class SetColor
     /// <summary>
     /// Ellipse の Color を設定する。
     /// </summary>
-    public static void Ellipse(ChartEllipse ellipse)
+    public static void SetColor(this ChartEllipse ellipse)
     {
         ellipse.Color = Colors.LineMarker;
     }
@@ -136,7 +133,7 @@ public static class SetColor
     /// Triangle の Color を設定する。
     /// </summary>
     /// <param name="triangle"></param>
-    public static void Triangle(ChartTriangle triangle)
+    public static void SetColor(this ChartTriangle triangle)
     {
         var middleY = (triangle.Y2 + triangle.Y3) / 2;
         triangle.Color = triangle.Y1 > middleY ? Colors.TriangleA : Colors.TriangleV;
@@ -146,7 +143,7 @@ public static class SetColor
     /// ChartText の Color を設定する。
     /// </summary>
     /// <param name="text"></param>
-    public static void Text(ChartText text)
+    public static void SetColor(this ChartText text)
     {
         text.Color = Color.LightGray;
     }
@@ -155,7 +152,7 @@ public static class SetColor
     /// ChartStaticText の Color を設定する。
     /// </summary>
     /// <param name="staticText"></param>
-    public static void StaticText(ChartStaticText staticText)
+    public static void SetColor(this ChartStaticText staticText)
     {
         staticText.Color = Color.LightGray;
     }
@@ -164,7 +161,7 @@ public static class SetColor
     /// ChartIcon の Color を設定する。
     /// </summary>
     /// <param name="icon"></param>
-    public static void Icon(ChartIcon icon)
+    public static void SetColor(this ChartIcon icon)
     {
         switch (icon.IconType)
         {
@@ -172,6 +169,7 @@ public static class SetColor
             case ChartIconType.UpTriangle:
                 icon.Color = Colors.SupportLine;
                 break;
+
             case ChartIconType.DownArrow:
             case ChartIconType.DownTriangle:
                 icon.Color = Colors.ResistanceLine;
