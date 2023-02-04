@@ -122,7 +122,10 @@ public static class SetDefault
     public static void AdjustEllipse(ChartEllipse ellipse, ChartHorizontalLine[] hLines)
     {
         // TODO : 複数ある場合の処理
-        if (!hLines.Any() || hLines.Count() > 1) return;
+        if (!hLines.Any() || hLines.Count() > 1)
+        {
+            return;
+        }
 
         var lineY = hLines.Single().Y;
         var diffY1 = Math.Abs(lineY - ellipse.Y1);
