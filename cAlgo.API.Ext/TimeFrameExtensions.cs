@@ -9,49 +9,47 @@ public static class TimeFrameExtensions
     /// <returns></returns>
     public static string ToShorthand(this TimeFrame timeFrame)
     {
-        string shorthand;
         if (timeFrame == TimeFrame.Minute)
         {
-            shorthand = "M1";
-        }
-        else if (timeFrame == TimeFrame.Minute5)
-        {
-            shorthand = "M5";
-        }
-        else if (timeFrame == TimeFrame.Minute15)
-        {
-            shorthand = "M15";
-        }
-        else if (timeFrame == TimeFrame.Minute30)
-        {
-            shorthand = "M30";
-        }
-        else if (timeFrame == TimeFrame.Hour)
-        {
-            shorthand = "H1";
-        }
-        else if (timeFrame == TimeFrame.Hour4)
-        {
-            shorthand = "H4";
-        }
-        else if (timeFrame == TimeFrame.Daily)
-        {
-            shorthand = "D1";
-        }
-        else if (timeFrame == TimeFrame.Weekly)
-        {
-            shorthand = "W1";
-        }
-        else if (timeFrame == TimeFrame.Monthly)
-        {
-            shorthand = "Mo1";
-        }
-        else
-        {
-            shorthand = "another TimeFrame";
+            return "M1";
         }
 
-        return shorthand;
+        if (timeFrame == TimeFrame.Minute5)
+        {
+            return "M5";
+        }
+
+        if (timeFrame == TimeFrame.Minute15)
+        {
+            return "M15";
+        }
+
+        if (timeFrame == TimeFrame.Minute30)
+        {
+            return "M30";
+        }
+
+        if (timeFrame == TimeFrame.Hour)
+        {
+            return "H1";
+        }
+
+        if (timeFrame == TimeFrame.Hour4)
+        {
+            return "H4";
+        }
+
+        if (timeFrame == TimeFrame.Daily)
+        {
+            return "D1";
+        }
+
+        if (timeFrame == TimeFrame.Weekly)
+        {
+            return "W1";
+        }
+
+        return timeFrame == TimeFrame.Monthly ? "Mo1" : "another TimeFrame";
     }
 
     /// <summary>
@@ -60,7 +58,7 @@ public static class TimeFrameExtensions
     /// </summary>
     /// <param name="timeFrameString">TimeFrame の文字列</param>
     /// <returns></returns>
-    private static TimeFrame ToTimeFrame(this string timeFrameString)
+    public static TimeFrame ToTimeFrame(this string timeFrameString)
     {
         switch (timeFrameString)
         {
@@ -122,7 +120,7 @@ public static class TimeFrameExtensions
     /// base = 3, target = 2 のみ OK となる。
     /// (target - base) = -1 は OK。-2 は NG。
     /// </example>
-    public static bool IsLongerTermThanBaseBy(
+    private static bool IsLongerTermThanBaseBy(
         TimeFrame baseTimeFrame,
         TimeFrame targetTimeFrame,
         int diff)
