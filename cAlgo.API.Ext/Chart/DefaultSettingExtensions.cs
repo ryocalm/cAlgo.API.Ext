@@ -11,13 +11,20 @@ public static class DefaultSettingExtensions
     /// <param name="timeFrame"></param>
     public static void SetDefault(this ChartHorizontalLine horizontalLine, TimeFrame timeFrame)
     {
-        horizontalLine.Comment ??= timeFrame.ToString();
+        // horizontalLine.Comment ??= timeFrame.ToString();
+        if (horizontalLine.Comment == "")
+        {
+            horizontalLine.Comment = timeFrame.ToString();
+            //horizontalLine.
+        }
 
         // 手動で追加したラインのみを対象とする。
-        if (horizontalLine.IsAddedManually())
+        if (!horizontalLine.IsAddedManually())
         {
             return;
         }
+
+        horizontalLine.LineStyle = LineStyle.DotsRare;
 
         // TimeFrame に応じて Thickness を変更する。
         // TODO 描画された TimeFrame によって分岐させたほうがよいかも？
