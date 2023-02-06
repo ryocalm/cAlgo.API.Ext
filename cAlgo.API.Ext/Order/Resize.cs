@@ -34,7 +34,7 @@ public static class Resize
     private static double GetAverageStopLossPrice(
         IReadOnlyCollection<PendingOrder> pendingOrders)
     {
-        if (pendingOrders.Count < 1)
+        if (!pendingOrders.Any())
         {
             throw new Exception("No pendingOrders...");
         }
@@ -46,41 +46,48 @@ public static class Resize
             throw new Exception("Contains both Buy and Sell orders...");
         }
 
-        var stopLossPrices = pendingOrders
-            .Select(order => order.StopLoss)
-            .Where(stopLoss => stopLoss != null)
-            .ToArray();
-
         // StopLoss が設定されていない場合は全ての order をキャンセルする。
-        if (stopLossPrices.Length < 1)
+        if (pendingOrders.Any(order => order.StopLoss == null))
         {
             foreach (var order in pendingOrders)
             {
                 order.Cancel();
             }
 
-            throw new Exception("No stopLoss has set...");
+            throw new Exception("Every PendingOrder MUST be set StopLoss!");
         }
 
-        var averageStopLoss = 0.0;
-        if (stopLossPrices.Length == 1)
+        var stopLossPrices = pendingOrders
+            .Select(order => order.StopLoss)
+            .Where(stopLoss => stopLoss != null)
+            .ToArray();
+
+        switch (stopLossPrices.Length)
         {
-            var stopLoss = stopLossPrices.Single();
-            if (stopLoss.HasValue)
+            case 1:
             {
-                averageStopLoss = stopLoss.Value;
+                var stopLoss = stopLossPrices.Single();
+                if (stopLoss.HasValue)
+                {
+                    return stopLoss.Value;
+                }
+
+                break;
             }
-        }
-        else
-        {
-            var average = stopLossPrices.Average();
-            if (average.HasValue)
+            default:
             {
-                averageStopLoss = average.Value;
+                var average = stopLossPrices.Average();
+                if (average.HasValue)
+                {
+                    return average.Value;
+                }
+
+                break;
             }
         }
 
-        return averageStopLoss;
+        const double dummyAverageStopLoss = 10.0;
+        return dummyAverageStopLoss;
     }
 
     /// <summary>
@@ -109,13 +116,13 @@ public static class Resize
 
         // 1 トレードにおける許容損失金額
         // 例 : balance 100,000 円の 0.5% で 500 円
-        var riskAmount = balance * allowableLossRate / 100;
+        var allowableRiskAmount = balance * allowableLossRate / 100;
 
         // 1 pip あたりの許容損失金額
         // 例 : USD/JPY で 500 円を 10 pips で割ると 50 円/pips
         // 例 : XAU/USD で 500 円を 500 pips で割ると 1 円/pips
         var riskAmountPerPips = Math.Round(
-            value: riskAmount / priceRangePips,
+            value: allowableRiskAmount / priceRangePips,
             digits: 1,
             mode: MidpointRounding.AwayFromZero);
 
@@ -124,35 +131,35 @@ public static class Resize
         // 例 : XAU/USD で 1 円を pipValue 1.10 で割ると 0.909 Units (0.01 Lot) 弱
         var totalPositionSize = riskAmountPerPips / symbol.PipValue;
 
-        if (totalPositionSize < symbol.VolumeInUnitsMin)
+        if (totalPositionSize / pendingOrders.Length > symbol.VolumeInUnitsMin)
         {
-            var resizePlan = new ResizePlan(
+            var eachPositionSize = symbol.NormalizeVolumeInUnits(totalPositionSize / pendingOrders.Length);
+            return new ResizePlan(
                 stopLossPrice: stopLossPrice,
-                eachPositionSize: symbol.VolumeInUnitsMin);
-
-            // stopLossPrice は動かさない
-            // TargetPrice を動かす（StopLossPrice に近づける）
-            // riskAmountPips を変更する必要がある。
-
-            // 1 * 1.10 = 1.10
-            var validRiskAmountPerPips =
-                symbol.VolumeInUnitsMin * symbol.PipValue;
-
-            // 500 円を 1.10 で割ると 454.5 pips
-            var validPriceRangePips =
-                Math.Floor(riskAmount / validRiskAmountPerPips);
-
-            resizePlan.TargetPriceOffset =
-                Math.Abs(validPriceRangePips - priceRangePips) * symbol.PipSize;
-
-            return resizePlan;
+                eachPositionSize: eachPositionSize);
         }
 
-        var eachPositionSize = symbol.NormalizeVolumeInUnits(totalPositionSize / pendingOrders.Length);
+        // VolumeInUnitsMin に満たない場合
+        // stopLossPrice は動かさない
+        // TargetPrice を動かす（StopLossPrice に近づける）
+        // riskAmountPips を変更する必要がある。
 
-        return new ResizePlan(
+        var resizePlan = new ResizePlan(
             stopLossPrice: stopLossPrice,
-            eachPositionSize: eachPositionSize);
+            eachPositionSize: symbol.VolumeInUnitsMin);
+
+        // 1 * 1.10 = 1.10
+        var validRiskAmountPerPips =
+            symbol.VolumeInUnitsMin * symbol.PipValue;
+
+        // 500 円を 1.10 で割ると 454.5 pips
+        var validPriceRangePips =
+            Math.Floor(allowableRiskAmount / validRiskAmountPerPips);
+
+        resizePlan.TargetPriceOffset =
+            Math.Abs(validPriceRangePips - priceRangePips) * symbol.PipSize;
+
+        return resizePlan;
     }
 
     /// <summary>
@@ -183,13 +190,13 @@ public static class Resize
 
         // 1 トレードにおける許容損失金額
         // 例 : balance 100,000 円の 0.5% で 500 円
-        var riskAmount = balance * allowableLossRate / 100;
+        var allowableRiskAmount = balance * allowableLossRate / 100;
 
         // 1 pip あたりの許容損失金額
         // 例 : USD/JPY で 500 円を 10 pips で割ると 50 円/pips
         // 例 : XAU/USD で 500 円を 500 pips で割ると 1 円/pips
         var riskAmountPerPips = Math.Round(
-            value: riskAmount / priceRangePips,
+            value: allowableRiskAmount / priceRangePips,
             digits: 1,
             mode: MidpointRounding.AwayFromZero);
 
@@ -198,9 +205,9 @@ public static class Resize
         // 例 : XAU/USD で 1 円を pipValue 1.10 で割ると 0.909 Units (0.01 Lot) 弱
         var totalPositionSize = riskAmountPerPips / symbol.PipValue;
 
-        var eachPositionSize = totalPositionSize < symbol.VolumeInUnitsMin
-            ? symbol.VolumeInUnitsMin
-            : symbol.NormalizeVolumeInUnits(totalPositionSize);
+        var eachPositionSize = totalPositionSize > symbol.VolumeInUnitsMin
+            ? symbol.NormalizeVolumeInUnits(totalPositionSize)
+            : symbol.VolumeInUnitsMin;
 
         var resizePlan = new ResizePlan(stopLossPrice, eachPositionSize)
         {
