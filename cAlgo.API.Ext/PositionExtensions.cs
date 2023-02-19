@@ -1,23 +1,25 @@
-﻿using cAlgo.API.Internals;
-
-namespace cAlgo.API.Ext;
+﻿namespace cAlgo.API.Ext;
 
 public static class PositionExtensions
 {
-    public static double? GetStopLossInPips(this Position position, Symbol symbol)
+    public static double GetStopLossInPips(this Position position)
     {
-        var stopLossPips = position.TradeType == TradeType.Buy
-            ? position.EntryPrice - position.StopLoss
-            : position.StopLoss - position.EntryPrice;
-        return stopLossPips ?? 10.0;
+        if (position.StopLoss.HasValue)
+        {
+            return Math.Abs(position.EntryPrice - position.StopLoss.Value);
+        }
+
+        return 0.0;
     }
 
-    public static double? GetTakeProfitInPips(this Position position, Symbol symbol)
+    public static double? GetTakeProfitInPips(this Position position)
     {
-        var takeProfitPips = position.TradeType == TradeType.Buy
-            ? position.TakeProfit - position.EntryPrice
-            : position.EntryPrice - position.TakeProfit;
-        return takeProfitPips ?? 10.0;
+        if (position.TakeProfit.HasValue)
+        {
+            return Math.Abs(position.EntryPrice - position.TakeProfit.Value);
+        }
+
+        return 10.0;
     }
 
     /// <summary>
