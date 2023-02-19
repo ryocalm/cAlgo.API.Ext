@@ -14,7 +14,6 @@ public static class ConditionExtensions
         const string defaultName = "Horizontal Line";
         return horizontalLine.Name.StartsWith(defaultName);
     }
-    // IsAddedManually
 
     /// <summary>
     /// TrendLine が水平部分線か判定する。
@@ -38,6 +37,7 @@ public static class ConditionExtensions
 
         const int baseThresholdPips = 10;
         var threshold = baseThresholdPips;
+
         if (symbol.Name == "XAUUSD")
         {
             threshold = baseThresholdPips * 40;

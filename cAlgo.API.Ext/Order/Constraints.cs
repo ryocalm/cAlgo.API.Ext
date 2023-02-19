@@ -232,8 +232,10 @@ public static class Constraints
         {
             TradeType.Buy => IsLongEntryFromSupport(
                 targetPrice, thresholdPips, pipSize, horizontalLines, rectangles),
+
             TradeType.Sell => IsShortEntryFromResistance(
                 targetPrice, thresholdPips, pipSize, horizontalLines, rectangles),
+
             _ => throw new ArgumentOutOfRangeException(nameof(tradeType), tradeType, null)
         };
     }
